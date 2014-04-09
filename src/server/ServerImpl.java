@@ -26,9 +26,8 @@ public class ServerImpl implements Server {
     }
 
     @Override
-    public void transmit() {
-        // TODO Auto-generated method stub
-
+    public String transmit() {
+        return "ok";
     }
 
     public static void main(String args[]) {
@@ -36,7 +35,7 @@ public class ServerImpl implements Server {
         /*     System.setSecurityManager(new SecurityManager()); */
         /* } */
         try {
-            String name = "Server";
+            String name = Server.NAME;
             Server server = new ServerImpl();
             Server stub = (Server) UnicastRemoteObject.exportObject(server, 0);
             Registry registry = LocateRegistry.getRegistry();

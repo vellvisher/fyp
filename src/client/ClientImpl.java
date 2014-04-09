@@ -1,18 +1,20 @@
 package client;
 
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import server.Server;
+import cloud.Cloud;
 
 class ClientImpl implements Client {
+    private static final String RMI_SERVER = null;
+
     public static void main(String args[]) {
         try {
-            String name = Server.NAME;
-            Registry registry = LocateRegistry.getRegistry(args[0]);
-
-        } catch (RemoteException e) {
+            String name = Cloud.NAME;
+            Registry registry = LocateRegistry.getRegistry(RMI_SERVER);
+            Cloud server = (Cloud) registry.lookup(name);
+            System.out.println(server.query("5"));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

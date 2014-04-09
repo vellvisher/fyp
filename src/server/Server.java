@@ -8,5 +8,5 @@ public interface Server extends Remote {
     public void generateData() throws RemoteException;
     public void partition() throws RemoteException;
     public void generateVO() throws RemoteException;
-    public void transmit() throws RemoteException;
+    public String transmit() throws RemoteException;
 }
