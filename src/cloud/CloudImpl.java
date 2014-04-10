@@ -6,7 +6,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 import server.Server;
-import server.ServerImpl;
 
 class CloudImpl implements Cloud {
 

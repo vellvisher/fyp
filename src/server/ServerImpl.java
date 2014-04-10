@@ -31,9 +31,6 @@ public class ServerImpl implements Server {
     }
 
     public static void main(String args[]) {
-        /* if (System.getSecurityManager() == null) { */
-        /*     System.setSecurityManager(new SecurityManager()); */
-        /* } */
         try {
             String name = Server.NAME;
             Server server = new ServerImpl();
