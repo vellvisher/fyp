@@ -36,7 +36,6 @@ public class Tree<T> {
 
         ArrayList<Node> newNodes = new ArrayList();
         for (int i = 0; i < values.size(); i += fanOut) {
-            List<Node>
             List<Node> children = new ArrayList<Node>();
             for (int j = i; j < i + fanOut && j < values.size(); j++) {
                 children.add(new Node(values.get(j)));
