@@ -16,6 +16,8 @@ public class CloudImpl implements Cloud {
     private static final int NUM_PARTITIONS = 1000;
     private Object partitions;
     private DBManager db;
+    // TODO: Probobly should not be a field
+    private Server server;
 
     public CloudImpl() {
         connectToDatabase();
@@ -49,7 +51,7 @@ public class CloudImpl implements Cloud {
         try {
             String name = Server.NAME;
             Registry registry = LocateRegistry.getRegistry(RMI_SERVER);
-            Server server = (Server) registry.lookup(name);
+            server = (Server) registry.lookup(name);
             this.partitions = server.getPartitions();
             for (Person p : server.getPartition(5)) {
                 System.out.println(p);
@@ -72,9 +74,12 @@ public class CloudImpl implements Cloud {
 
     @Override
     public String query(String query, int randomSeed) throws RemoteException {
-        db.executeQuery(query);
+        // TODO: Fix exception
+        /* db.executeQuery(query); */
         Integer partitionId = randomSeed % Server.K;
-        // TODO Auto-generated method stub
+        for (Person p : server.getPartition(partitionId)) {
+            System.out.println(p);
+        }
         // Get data for supplied partition
         // Perform query on supplied partition
         // Return VO for partition and result

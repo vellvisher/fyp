@@ -4,6 +4,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
+import java.util.Random;
+
 import cloud.Cloud;
 
 public class ClientImpl implements Client {
@@ -11,6 +13,7 @@ public class ClientImpl implements Client {
     private Cloud cloud;
 
     public ClientImpl() {
+        connectToCloud();
         // TODO: Run for-loop doing queries over time
         try {
             query();
@@ -21,12 +24,14 @@ public class ClientImpl implements Client {
     }
 
     public static void main(String args[]) {
+        new ClientImpl();
+    }
+
+    public void connectToCloud() {
         try {
             String name = Cloud.NAME;
             Registry registry = LocateRegistry.getRegistry(RMI_SERVER);
-            Cloud server = (Cloud) registry.lookup(name);
-            System.out.println(server.query("5"));
-            new ClientImpl();
+            cloud = (Cloud) registry.lookup(name);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -40,7 +45,7 @@ public class ClientImpl implements Client {
     }
 
     private static int randomNumber() {
-        // TODO Auto-generated method stub
-        return 0;
+        Random r = new Random();
+        return r.nextInt(Integer.MAX_VALUE);
     }
 }
