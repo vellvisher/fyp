@@ -76,7 +76,7 @@ public class CloudImpl implements Cloud {
     public String query(String query, int randomSeed) throws RemoteException {
         // TODO: Fix exception
         /* db.executeQuery(query); */
-        Integer partitionId = randomSeed % Server.K;
+        Integer partitionId = (randomSeed % Server.K) + 1; // Prevent partitionId 0
         for (Person p : server.getPartition(partitionId)) {
             System.out.println(p);
         }
