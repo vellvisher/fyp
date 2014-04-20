@@ -1,6 +1,5 @@
 package server;
 
-import java.io.Closeable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -89,7 +88,11 @@ public class DBManager {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            close();
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return results;
 
@@ -118,38 +121,8 @@ public class DBManager {
         }
     }
 
-    private void writeResultSet(ResultSet resultSet) throws SQLException {
-        // resultSet is initialised before the first data set
-        while (resultSet.next()) {
-            // it is possible to get the columns via name
-            // also possible to get the columns via the column number
-            // which starts at 1
-            // e.g., resultSet.getSTring(2);
-            String user = resultSet.getString("id");
-            String website = resultSet.getString("name");
-            String summary = resultSet.getString("department_id");
-            String comment = resultSet.getString("salary");
-            System.out.println("User: " + user);
-            System.out.println("Website: " + website);
-            System.out.println("Summary: " + summary);
-            System.out.println("Comment: " + comment);
-        }
-    }
+    public void verifyPartitions(Integer k, int i) {
+        // TODO Auto-generated method stub
 
-    // you need to close all three to make sure
-    private void close() {
-        // TODO: Fix
-        /* close(resultSet); */
-        /* close(statement); */
-        /* close(connect); */
-    }
-    private void close(Closeable c) {
-        try {
-            if (c != null) {
-                c.close();
-            }
-        } catch (Exception e) {
-            // don't throw now as it might leave following closables in undefined state
-        }
     }
 }

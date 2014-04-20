@@ -5,21 +5,21 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import person.Person;
 
 public class ServerImpl implements Server {
-    public static final Integer K = 100;
-    public static final Integer TOTAL = 1000000;
     private ArrayList<ArrayList<Person>> partitions;
     private DBManager db;
 
     public ServerImpl() {
         connectToDatabase();
         /* generatePartitions(); */
+    }
+
+    private void verifyPartitions() {
+        db.verifyPartitions(K, TOTAL/K);
     }
 
     @Override
@@ -52,17 +52,7 @@ public class ServerImpl implements Server {
                 partition_id++;
             }
         }
-
-        this.partitions = partitions;
         System.out.println("Generated partitions...");
-    }
-
-    @Override
-    public String transmit() {
-        // TODO: Implement
-        // Transmit authenticated value for number of partitions
-        // Transmit VO for each partition
-        return "ok";
     }
 
     private void connectToDatabase() {
@@ -85,5 +75,32 @@ public class ServerImpl implements Server {
     @Override
     public Object getPartitions() {
         return this.partitions;
+    }
+
+    @Override
+    public ArrayList<Person> getPartition(Integer partitionId) throws RemoteException {
+        ArrayList<Person> partitionData = db.executeQuery(
+                "SELECT * from persons WHERE partition_id=" + partitionId);
+        for (Person p : partitionData) {
+            // Do some transformation thing to encrypt data
+            // TODO: Replace with better
+            p.name = MD5(p.name);
+        }
+
+        return partitionData;
+    }
+
+    public String MD5(String md5) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+        }
+        return null;
     }
 }

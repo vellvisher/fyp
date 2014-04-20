@@ -5,6 +5,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+import person.Person;
+
 import server.DBManager;
 import server.Server;
 
@@ -32,7 +34,7 @@ public class CloudImpl implements Cloud {
     private void startCloudServer() {
         try {
             String name = Cloud.NAME;
-            Cloud server = new CloudImpl();
+            Cloud server = this;
             Cloud stub = (Cloud) UnicastRemoteObject.exportObject(server, 0);
             Registry registry = LocateRegistry.getRegistry();
             registry.rebind(name, stub);
@@ -48,8 +50,10 @@ public class CloudImpl implements Cloud {
             String name = Server.NAME;
             Registry registry = LocateRegistry.getRegistry(RMI_SERVER);
             Server server = (Server) registry.lookup(name);
-            System.out.println(server.transmit());
             this.partitions = server.getPartitions();
+            for (Person p : server.getPartition(5)) {
+                System.out.println(p);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,9 +73,8 @@ public class CloudImpl implements Cloud {
     @Override
     public String query(String query, int randomSeed) throws RemoteException {
         db.executeQuery(query);
+        Integer partitionId = randomSeed % Server.K;
         // TODO Auto-generated method stub
-        Integer n = 5; // TODO: Replace with number of partitions and authenticate
-        Integer partitionId = randomSeed % n;
         // Get data for supplied partition
         // Perform query on supplied partition
         // Return VO for partition and result
