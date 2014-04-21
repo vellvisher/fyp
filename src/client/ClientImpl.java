@@ -39,7 +39,7 @@ public class ClientImpl implements Client {
 
     public void query() throws RemoteException {
         int randomSeed = randomNumber();
-        cloud.query("SELECT salary, department_id FROM `persons`", randomSeed);
+        cloud.query("SELECT salary, department_id FROM `persons` WHERE salary BETWEEN 10000 AND 30000", randomSeed);
         cloud.query("SELECT department_id, sum(salary) FROM `persons` GROUP BY department_id", randomSeed);
         cloud.query("SELECT department_id, sum(salary) FROM `persons` GROUP BY department_id WHERE SALARY > 10000", randomSeed);
     }
