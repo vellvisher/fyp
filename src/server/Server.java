@@ -15,4 +15,5 @@ public interface Server extends Remote {
     public void generateVO() throws RemoteException;
     public Object getPartitions() throws RemoteException;
     public ArrayList<Person> getPartition(Integer partitionId) throws RemoteException;
+    void getVO(int partitionId) throws RemoteException;
 }

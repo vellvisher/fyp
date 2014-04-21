@@ -4,9 +4,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 
 import person.Person;
-
 import server.DBManager;
 import server.Server;
 
@@ -68,12 +68,8 @@ public class CloudImpl implements Cloud {
     }
 
     @Override
-    public String query(String query) {
-        return "cloud ok";
-    }
-
-    @Override
-    public String query(String query, int randomSeed) throws RemoteException {
+    public String queryPartition(String query, int randomSeed)
+            throws RemoteException {
         // TODO: Fix exception
         /* db.executeQuery(query); */
         Integer partitionId = (randomSeed % Server.K) + 1; // Prevent partitionId 0
@@ -84,6 +80,35 @@ public class CloudImpl implements Cloud {
         // Perform query on supplied partition
         // Return VO for partition and result
         return null;
+    }
+
+    @Override
+    public ArrayList<Person> queryNonce(String query, int randomSeed,
+            int sampleSize) throws RemoteException {
+        ArrayList<Integer> idList = nonceToIds(randomSeed, sampleSize);
+        StringBuilder sb = new StringBuilder(sampleSize*3);
+        sb.append("SELECT id, salary FROM persons where id in (");
+        sb.append(idList.get(0));
+
+        for (int i = 1; i < idList.size(); i++) {
+            sb.append(",").append(idList.get(i));
+        }
+        sb.append(")");
+        System.out.println(sb);
+        return db.executeQuery(sb.toString());
+    }
+
+    private ArrayList<Integer> nonceToIds(int randomSeed, int sampleSize) {
+        ArrayList<Integer> idList = new ArrayList<Integer>();
+        idList.add(transform(randomSeed));
+        for (int i = 1; i < sampleSize; i++) {
+            idList.add(transform(idList.get(i - 1) + randomSeed));
+        }
+        return idList;
+    }
+
+    private Integer transform(int i) {
+        return i % Server.TOTAL;
     }
 
 }

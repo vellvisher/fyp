@@ -29,6 +29,11 @@ public class ServerImpl implements Server {
 
     @Override
     public void generateVO() {
+
+    }
+
+    @Override
+    public void getVO(int partitionId) {
         // TODO Auto-generated method stub
 
     }
