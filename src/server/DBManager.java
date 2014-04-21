@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Set;
 
 import person.Person;
 
@@ -18,8 +19,8 @@ public class DBManager {
     private String SERVER = "localhost";
 
     public DBManager(String database) {
-        String url = "jdbc:mysql://" + SERVER + "/" + database + "?user=fyp"+
-            "&password=fyp";
+        String url = "jdbc:mysql://" + SERVER + "/" + database + "?user=fyp"
+                + "&password=fyp";
         try {
             // this will load the MySQL driver, each DB has its own driver
             Class.forName("com.mysql.jdbc.Driver");
@@ -45,15 +46,14 @@ public class DBManager {
         }
     }
 
-    public ArrayList<Person> executeQuery(String query) {
+    public ArrayList<Person> executeQuery(String query, Set<String> columnNames) {
         ArrayList<Person> results = null;
         try {
             // statements allow to issue SQL queries to the database
             statement = connect.createStatement();
             // resultSet gets the result of the SQL query
-            resultSet = statement
-                .executeQuery(query);
-            results = resultSetToPersons(resultSet);
+            resultSet = statement.executeQuery(query);
+            results = resultSetToPersons(resultSet, columnNames);
             /*
 
             // preparedStatements can use variables and are more efficient
@@ -98,15 +98,16 @@ public class DBManager {
 
     }
 
-    private ArrayList<Person> resultSetToPersons(ResultSet resultSet) throws SQLException{
+    private ArrayList<Person> resultSetToPersons(ResultSet resultSet,
+            Set<String> columnNames) throws SQLException{
         // resultSet is initialised before the first data set
         ArrayList<Person> persons = new ArrayList<Person>();
         while (resultSet.next()) {
             Person person = new Person();
-            person.id = resultSet.getInt("id");
-            person.name = resultSet.getString("name");
-            person.department_id = resultSet.getInt("department_id");
-            person.salary = resultSet.getInt("salary");
+            person.id = columnNames.contains("id") ? resultSet.getInt("id") : 0;
+            person.name = columnNames.contains("name") ? resultSet.getString("name") : null;
+            person.department_id = columnNames.contains("department_id") ? resultSet.getInt("department_id") : 0;
+            person.salary = columnNames.contains("salary") ? resultSet.getInt("salary") : 0;
             persons.add(person);
         }
         return persons;

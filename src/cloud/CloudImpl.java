@@ -6,7 +6,11 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import person.Person;
+
 import server.DBManager;
 import server.Server;
 
@@ -95,7 +99,10 @@ public class CloudImpl implements Cloud {
         }
         sb.append(")");
         System.out.println(sb);
-        return db.executeQuery(sb.toString());
+        Set<String> tempSet = new HashSet<String>();
+        tempSet.add("id");
+        tempSet.add("salary");
+        return db.executeQuery(sb.toString(), tempSet);
     }
 
     private ArrayList<Integer> nonceToIds(int randomSeed, int sampleSize) {
