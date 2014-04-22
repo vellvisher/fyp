@@ -61,7 +61,7 @@ public class ServerImpl implements Server {
     }
 
     private void connectToDatabase() {
-        db = new DBManager("ransam");
+        db = new DBManager("ransam_big");
     }
 
     public static void main(String args[]) {

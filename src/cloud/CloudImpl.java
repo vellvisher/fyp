@@ -35,7 +35,10 @@ public class CloudImpl implements Cloud {
     }
 
     private void connectToDatabase() {
-        db = new DBManager("ransam_cloud");
+        // TODO: Change to cloud
+        /* db = new DBManager("ransam_big_cloud"); */
+        db = new DBManager("ransam_big");
+        System.out.println("Connected to database...");
     }
 
     private void startCloudServer() {
@@ -58,9 +61,10 @@ public class CloudImpl implements Cloud {
             Registry registry = LocateRegistry.getRegistry(RMI_SERVER);
             server = (Server) registry.lookup(name);
             this.partitions = server.getPartitions();
-            for (Person p : server.getPartition(5)) {
-                System.out.println(p);
-            }
+            /* for (Person p : server.getPartition(5)) { */
+            /*     System.out.println(p); */
+            /* } */
+            System.out.println("Connected to server...");
         } catch (Exception e) {
             e.printStackTrace();
         }
