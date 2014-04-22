@@ -1,12 +1,13 @@
 package cloud;
 
+import java.math.BigInteger;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import person.Person;
@@ -89,8 +90,23 @@ public class CloudImpl implements Cloud {
     @Override
     public ArrayList<Person> queryNonce(String query, int randomSeed,
             int sampleSize) throws RemoteException {
-        ArrayList<Integer> idList = nonceToIds(randomSeed, sampleSize);
-        StringBuilder sb = new StringBuilder(sampleSize*3);
+        ArrayList<Integer> idListAdditive = nonceToIdsAdditive(randomSeed, sampleSize);
+        ArrayList<Integer> idListHash = nonceToIdsHash(randomSeed, sampleSize);
+        ArrayList<Integer> idListRNG = nonceToIdsRNG(randomSeed, sampleSize);
+        String queryAdditive = generateQuery(idListAdditive);
+        String queryHash = generateQuery(idListHash);
+        String queryNonce = generateQuery(idListRNG);
+        System.out.println(queryAdditive);
+        System.out.println(queryHash);
+        System.out.println(queryNonce);
+        Set<String> tempSet = new HashSet<String>();
+        tempSet.add("id");
+        tempSet.add("salary");
+        return db.executeQuery(queryAdditive, tempSet);
+    }
+
+    private String generateQuery(ArrayList<Integer> idList) {
+        StringBuilder sb = new StringBuilder(idList.size()*3);
         sb.append("SELECT id, salary FROM persons where id in (");
         sb.append(idList.get(0));
 
@@ -98,24 +114,61 @@ public class CloudImpl implements Cloud {
             sb.append(",").append(idList.get(i));
         }
         sb.append(")");
-        System.out.println(sb);
-        Set<String> tempSet = new HashSet<String>();
-        tempSet.add("id");
-        tempSet.add("salary");
-        return db.executeQuery(sb.toString(), tempSet);
+        return sb.toString();
     }
 
-    private ArrayList<Integer> nonceToIds(int randomSeed, int sampleSize) {
+    private ArrayList<Integer> nonceToIdsRNG(int randomSeed, int sampleSize) {
         ArrayList<Integer> idList = new ArrayList<Integer>();
-        idList.add(transform(randomSeed));
+        Random r = new Random(randomSeed);
+        idList.add((r.nextInt(Integer.MAX_VALUE) % Server.TOTAL) + 1);
         for (int i = 1; i < sampleSize; i++) {
-            idList.add(transform(idList.get(i - 1) + randomSeed));
+            idList.add((r.nextInt(Integer.MAX_VALUE) % Server.TOTAL) + 1);
         }
         return idList;
     }
 
-    private Integer transform(int i) {
-        return i % Server.TOTAL;
+    private ArrayList<Integer> nonceToIdsHash(int randomSeed, int sampleSize) {
+        ArrayList<Integer> idList = new ArrayList<Integer>();
+        idList.add(transformHash(randomSeed));
+        for (int i = 1; i < sampleSize; i++) {
+            idList.add(transformHash(idList.get(i - 1), randomSeed));
+        }
+        return idList;
+    }
+
+    private Integer transformHash(int i) {
+        return (new BigInteger(MD5(i+""), 16)).mod(BigInteger.valueOf(Server.TOTAL)).intValue() + 1;
+    }
+
+    private Integer transformHash(int i, int j) {
+        return (new BigInteger(MD5(i + "" + j), 16)).mod(BigInteger.valueOf(Server.TOTAL)).intValue() + 1;
+    }
+
+    public String MD5(String md5) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(md5.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+        }
+        return null;
+    }
+
+    private ArrayList<Integer> nonceToIdsAdditive(int randomSeed, int sampleSize) {
+        ArrayList<Integer> idList = new ArrayList<Integer>();
+        idList.add(transformAdditive(randomSeed));
+        for (int i = 1; i < sampleSize; i++) {
+            idList.add(transformAdditive(idList.get(i - 1) + randomSeed));
+        }
+        return idList;
+    }
+
+    private Integer transformAdditive(int i) {
+        return (i % Server.TOTAL) + 1;
     }
 
 }

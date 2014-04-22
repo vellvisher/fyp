@@ -85,7 +85,7 @@ public class ServerImpl implements Server {
     @Override
     public ArrayList<Person> getPartition(Integer partitionId) throws RemoteException {
         ArrayList<Person> partitionData = db.executeQuery(
-                "SELECT * from persons WHERE partition_id=" + partitionId);
+                "SELECT * from persons WHERE partition_id=" + partitionId, Person.ALL_KEYS);
         for (Person p : partitionData) {
             // Do some transformation thing to encrypt data
             // TODO: Replace with better
